@@ -1,14 +1,14 @@
-// This line attaches an event listener to the form with the ID 'addItemForm'.
+// This line attaches an event listener to the form with the ID 'newItemForm'.
 // When the form is submitted, the specified function is called.
-document.getElementById('addItemForm').addEventListener('submit', function(e) {
+document.getElementById('newItemForm').addEventListener('submit', function(e) {
     e.preventDefault(); // Prevents the default form submission action.
 
     // Retrieves the values entered into the input fields with IDs 'itemName' and 'itemQuantity'.
     const itemName = document.getElementById('itemName').value;
     const itemQuantity = document.getElementById('itemQuantity').value;
 
-    // Makes an HTTP POST request to the '/addItem' route on the server.
-    fetch('/addItem', {
+    // Makes an HTTP POST request to the '/newItem' route on the server.
+    fetch('/newItem', {
         method: 'POST', // Specifies the method as POST.
         headers: {
             'Content-Type': 'application/json', // Sets the content type of the request to JSON.
@@ -59,3 +59,32 @@ function loadInventory() {
 }
 
 loadInventory(); // Calls the loadInventory function when the script is first executed.
+
+document.getElementById("newItemForm").onsubmit = function() {
+    openModal('Item added successfully!');
+    return false;
+};
+
+document.getElementById("removeItemForm").onsubmit = function() {
+    openModal('Item removed successfully!');
+    return false;
+};
+
+var modal = document.getElementById("customModal");
+var closeButton = document.getElementsByClassName("close-button")[0];
+
+function openModal(message) {
+    document.getElementById("modalMessage").innerText = message;
+    modal.style.display = "block";
+}
+
+closeButton.onclick = function() {
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+

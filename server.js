@@ -80,6 +80,26 @@ app.get('/login', (req, res) => {
     res.sendFile(__dirname + '/public/login.html');
 });
 
+// Serve the login page
+app.get('/addItem', (req, res) => {
+    res.sendFile(__dirname + '/public/addItem.html');
+});
+
+// Serve the login page
+app.get('/removeItem', (req, res) => {
+    res.sendFile(__dirname + '/public/removeItem.html');
+});
+
+// Serve the login page
+app.get('/printQR', (req, res) => {
+    res.sendFile(__dirname + '/public/printQR.html');
+});
+
+// Serve the login page
+app.get('/scanQR', (req, res) => {
+    res.sendFile(__dirname + '/public/scanQR.html');
+});
+
 // Route to get inventory items
 app.get('/getInventory', (req, res) => {
     const workbook = XLSX.readFile('inventory.xlsx'); // Reads the Excel file
@@ -91,13 +111,13 @@ app.get('/getInventory', (req, res) => {
 
 // Route to add an item
 app.post('/addItem', (req, res) => {
-    const newItem = req.body; // Gets the new item data from the request body
+    const addItem = req.body; // Gets the new item data from the request body
     readWriteExcel(data => {
-        const existingItem = data.find(item => item.name === newItem.name); // Looks for an existing item with the same name
+        const existingItem = data.find(item => item.name === addItem.name); // Looks for an existing item with the same name
         if (existingItem) {
-            existingItem.quantity += parseInt(newItem.quantity); // If found, increases its quantity
+            existingItem.quantity += parseInt(addItem.quantity); // If found, increases its quantity
         } else {
-            data.push({ name: newItem.name, quantity: parseInt(newItem.quantity) }); // If not found, adds the new item
+            data.push({ name: addItem.name, quantity: parseInt(addItem.quantity) }); // If not found, adds the new item
         }
     });
     res.json({ message: 'Item added' }); // Sends a response indicating the item was added

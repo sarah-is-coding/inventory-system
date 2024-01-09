@@ -15,34 +15,24 @@
             min-height: 100vh;
             margin: 0;
         }
+        
 
         h1 {
             color: #333;
             margin-bottom: 20px;
         }
 
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .grid-item, .grid-button {
-            background: #22c4d6;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        .button-container {
             display: flex;
             justify-content: center;
-            align-items: center;
+            gap: 10px; /* Space between buttons */
+            margin-top: 20px; /* Spacing above the button container */
         }
-
-        .grid-button {
-            padding: 10px 20px;
-            text-align: center;
+        
+        .button-container button {
+            width: auto; /* Adjust as per your design needs */
         }
+        
 
         button {
             width: 100%;
@@ -60,12 +50,24 @@
             background-color: #1ba8b3;
         }
 
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        label {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
         input[type="text"], input[type="number"] {
             padding: 10px;
             margin: 10px 0;
             border: 1px solid #ddd;
             border-radius: 4px;
-            width: calc(100% - 22px);
+            width: 100%;
             box-sizing: border-box;
         }
 
@@ -137,12 +139,33 @@
     <h1>Inventory Management</h1>
     <button id="logoutButton" onclick="window.location.href='/logout'">Logout</button>
 
-    <div class="grid-container">
-        <button type="button" class="grid-button" onclick="window.location.href='/addItem'">Add Item</button>
-        <button type="button" class="grid-button" onclick="window.location.href='/scanQR'">Scan QR Code</button>
-        <button type="button" class="grid-button" onclick="window.location.href='/removeItem'">Remove Item</button>
-        <button type="button" class="grid-button" onclick="window.location.href='/printQR'">Print QR Code</button>
-    </div>
+    <form id="addItemForm">
+        <div class="form-field">
+            <label for="itemName">Item Name</label>
+            <input type="text" id="itemName" required>
+        </div>
+
+        <div class="form-field">
+            <label for="itemQuantity">Quantity</label>
+            <input type="number" id="itemQuantity" value=0 min="0" required>
+        </div>
+
+        <!-- Button Container -->
+        <div class="button-container">
+            <button type="submit" id="addButton">Add</button>
+            <button type="submit" id="addPrintButton">Add and PrintQR</button>
+        </div>
+    </form>
+
+    <!-- 
+        If they give a barcode, look for the item with matching barcode in database/excel file/json the item name is filled for them using the information from excel file/database/json, 
+        this database quantity will be modified by adding the quantity they enter in this form after they hit add item at the end of the form.
+        There are times that they might have an item that is in the database, but they dont have the barcode. Give them the option for an item lookup.
+        If the item is in the database that they found through item lookup, send them to printQR on a different page where it will display the barcode on the screen for them.
+        After they printQR, send them back to this form with the barcode already received (name filled etc.)
+        After they hit add item, show them the item location from the database so they can put it back in the correct spot.
+        If they do not have a barcode, assume the item is completely new and they must manually enter everything.
+ -->
 
     <div id="inventoryList">
         <h2>Inventory List</h2>
