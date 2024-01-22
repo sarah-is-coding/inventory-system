@@ -58,6 +58,11 @@ app.post('/login', (req, res) => {
 app.post('/addItem', (req, res) => {
     const { barcode, name, quantity } = req.body;
 
+    // Check if barcode is provided
+    if (!barcode) {
+        return res.status(400).json({ success: false, message: 'Barcode is required' });
+    }
+
     // First, check if an item with this barcode already exists
     db.query('SELECT quantity FROM inventory WHERE barcode = ?', [barcode], (err, result) => {
         if (err) {
@@ -66,7 +71,7 @@ app.post('/addItem', (req, res) => {
         }
 
         if (result.length > 0) {
-            // Item exists, so update its quantity
+            // Item exists (even if quantity is zero), so update its quantity
             const newQuantity = result[0].quantity + quantity;
             db.query('UPDATE inventory SET quantity = ? WHERE barcode = ?', [newQuantity, barcode], (err, result) => {
                 if (err) {
@@ -89,19 +94,23 @@ app.post('/addItem', (req, res) => {
 });
 
 
-app.get('/lookupItem', (req, res) => {
-    const barcode = req.query.barcode;
 
-    db.query('SELECT name FROM inventory WHERE barcode = ?', [barcode], (err, result) => {
+// Endpoint to lookup items by name
+app.get('/lookupItemByName', (req, res) => {
+    const itemName = req.query.itemName;
+
+    // Query the database for items that match the provided name
+    db.query('SELECT * FROM inventory WHERE name LIKE ?', [`%${itemName}%`], (err, results) => {
         if (err) {
             res.status(500).json({ success: false, message: 'Error querying the database' });
-            throw err;
+            console.error(err);
+            return;
         }
 
-        if (result.length > 0) {
-            res.json({ success: true, name: result[0].name });
+        if (results.length > 0) {
+            res.json({ success: true, items: results });
         } else {
-            res.json({ success: false, message: 'No item found with this barcode' });
+            res.json({ success: false, message: 'No items found with this name' });
         }
     });
 });

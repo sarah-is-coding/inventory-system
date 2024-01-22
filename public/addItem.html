@@ -167,13 +167,11 @@
         </div>
 
         <div class="form-field">
-            <label for="itemBarcode">Enter Barcode or Lookup item</label>
+            <label for="itemBarcode">Enter Barcode or Lookup Item</label>
             <div class="barcode-lookup-container">
                 <input type="text" id="itemBarcode" placeholder="Enter Barcode">
                 <div class="separator"></div>
                 <button type="button" id="lookupButton">Lookup</button>
-                <div class="separator"></div>
-                <button type="submit" id="newItem">New Item</button>
             </div>
         </div>
 
@@ -201,6 +199,16 @@
  -->
 
     <iframe src="inventoryList.html" style="width:100%; height: auto; border:none;"></iframe>
+    
+    <div id="lookupModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Lookup Item</h2>
+            <input type="text" id="lookupItemName" placeholder="Enter item name">
+            <button id="performLookup">Search</button>
+            <!-- Add more content as needed for lookup results -->
+        </div>
+    </div>
 
     <!-- Modal -->
     <div id="customModal" class="modal">

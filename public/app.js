@@ -30,21 +30,33 @@ document.getElementById('addItemForm').addEventListener('submit', function(e) {
     });
 });
 
-document.getElementById('itemBarcode').addEventListener('change', function(e) {
-    const barcode = e.target.value;
-    
-    fetch(`/lookupItem?barcode=${barcode}`)
-    .then(response => response.json())
-    .then(data => {
-        if(data.success) {
-            document.getElementById('itemName').value = data.name;
-        } else {
-            // Handle the case where no item is found or clear the field
-            document.getElementById('itemName').value = '';
-        }
-    });
+//LOOKUP BUTTON ADDITEM {
+
+document.getElementById('lookupButton').addEventListener('click', function() {
+    var itemName = document.getElementById('itemName').value;
+    document.getElementById('lookupItemName').value = itemName;
+    document.getElementById('lookupModal').style.display = 'block';
 });
 
+var lookupCloseButton = document.getElementById("lookupModal").getElementsByClassName("close-button")[0];
+lookupCloseButton.onclick = function() {
+    document.getElementById('lookupModal').style.display = "none";
+}
+
+document.getElementById('performLookup').addEventListener('click', function() {
+    var lookupItemName = document.getElementById('lookupItemName').value;
+    // Perform the search logic here, possibly making a request to the server
+});
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    } else if (event.target == document.getElementById('lookupModal')) {
+        document.getElementById('lookupModal').style.display = "none";
+    }
+}
+
+// }
 
 // Similar to above, this attaches an event listener to the form for removing items.
 document.getElementById('removeItemForm').addEventListener('submit', function(e) {
