@@ -98,9 +98,12 @@ app.post('/addItem', (req, res) => {
 // Endpoint to lookup items by name
 app.get('/lookupItemByName', (req, res) => {
     const itemName = req.query.itemName;
+    const page = req.query.page || 1; // Default to first page if not specified
+    const limit = 10;
+    const offset = (page - 1) * limit;
 
     // Query the database for items that match the provided name
-    db.query('SELECT * FROM inventory WHERE name LIKE ?', [`%${itemName}%`], (err, results) => {
+    db.query('SELECT name, barcode FROM inventory WHERE name LIKE ? LIMIT ? OFFSET ?', [`%${itemName}%`, limit, offset], (err, results) => {
         if (err) {
             res.status(500).json({ success: false, message: 'Error querying the database' });
             console.error(err);

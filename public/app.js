@@ -36,6 +36,10 @@ document.getElementById('lookupButton').addEventListener('click', function() {
     var itemName = document.getElementById('itemName').value;
     document.getElementById('lookupItemName').value = itemName;
     document.getElementById('lookupModal').style.display = 'block';
+
+    if (itemName) {
+        performItemSearch(itemName);
+    }
 });
 
 var lookupCloseButton = document.getElementById("lookupModal").getElementsByClassName("close-button")[0];
@@ -45,8 +49,62 @@ lookupCloseButton.onclick = function() {
 
 document.getElementById('performLookup').addEventListener('click', function() {
     var lookupItemName = document.getElementById('lookupItemName').value;
-    // Perform the search logic here, possibly making a request to the server
+    performItemSearch(lookupItemName);
 });
+
+function performItemSearch(searchTerm, page = 1) {
+    fetch(`/lookupItemByName?itemName=${encodeURIComponent(searchTerm)}&page=${page}`)
+    .then(response => response.json())
+    .then(data => {
+        const searchResultsContainer = document.getElementById('searchResults');
+        searchResultsContainer.innerHTML = ''; // Clear previous results
+
+        if (data.success && data.items.length > 0) {
+            // Display up to the first 10 items
+            data.items.forEach(item => {
+                let itemElement = document.createElement('div');
+                itemElement.className = 'search-item';
+                itemElement.textContent = `Name: ${item.name}, Quantity: ${item.quantity}`;
+                itemElement.addEventListener('click', function() {
+                    selectItem(item);
+                });
+                searchResultsContainer.appendChild(itemElement);
+            });
+
+            // Pagination
+            createPagination(data.totalPages, searchTerm, page);
+        } else {
+            // Handle no results found
+            searchResultsContainer.innerHTML = '<p>No items found.</p>';
+        }
+    });
+}
+
+function selectItem(item) {
+    // Assuming 'item' contains 'name' and 'barcode' properties
+    document.getElementById('itemName').value = item.name;
+    document.getElementById('itemBarcode').value = item.barcode;
+    document.getElementById('lookupModal').style.display = 'none'; // Close the modal
+}
+
+
+
+function createPagination(totalPages, searchTerm, currentPage) {
+    const paginationContainer = document.getElementById('pagination');
+    paginationContainer.innerHTML = ''; // Clear previous pagination
+
+    for (let page = 1; page <= totalPages; page++) {
+        let pageButton = document.createElement('button');
+        pageButton.textContent = page;
+        pageButton.onclick = function() {
+            performItemSearch(searchTerm, page);
+        };
+        if (page === currentPage) {
+            pageButton.disabled = true; // Disable the current page button
+        }
+        paginationContainer.appendChild(pageButton);
+    }
+}
 
 window.onclick = function(event) {
     if (event.target == modal) {

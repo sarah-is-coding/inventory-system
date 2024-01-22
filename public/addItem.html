@@ -154,6 +154,52 @@
             text-decoration: none;
             cursor: pointer;
         }
+
+        #searchResults {
+            margin-top: 20px;
+            text-align: left;
+            max-width: 550px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+    
+        .search-item {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    
+        .search-item:hover {
+            background-color: #f9f9f9;
+        }
+    
+        /* Styles for pagination */
+        #pagination {
+            margin-top: 20px;
+        }
+    
+        #pagination button {
+            background-color: #22c4d6;
+            color: white;
+            padding: 5px 10px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    
+        #pagination button:hover {
+            background-color: #1ba8b3;
+        }
+    
+        #pagination button:disabled {
+            background-color: #eee;
+            color: #666;
+            cursor: default;
+        }
     </style>
 </head>
 <body>
@@ -206,7 +252,8 @@
             <h2>Lookup Item</h2>
             <input type="text" id="lookupItemName" placeholder="Enter item name">
             <button id="performLookup">Search</button>
-            <!-- Add more content as needed for lookup results -->
+            <div id="searchResults"></div> <!-- Container for search results -->
+            <div id="pagination"></div> <!-- Container for pagination buttons -->
         </div>
     </div>
 
