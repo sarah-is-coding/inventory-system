@@ -1,16 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+
     <!-- 
     Deleting item from database required manager PIN.
     When removing item select location it is being taken to. trash, cars, personal vehicles, other.
+    Instead of scan qr have an enter barcode form
 
     If an item is anywhere other than trash or personal vehicles 10 minutes before the end of persons shift, text person who removed the item 
     telling them to put it back in shop. The next day at 8am if the item isn't returned, text manager.
     -->
+    <!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Inventory Management</title>
+    <title>Remove Item</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -28,17 +30,39 @@
             margin-bottom: 20px;
         }
 
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .form-field label {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .form-field input[type="text"], 
+        .form-field input[type="number"], 
+        .form-field select {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
         .button-container {
             display: flex;
             justify-content: center;
             gap: 10px; /* Space between buttons */
             margin-top: 20px; /* Spacing above the button container */
         }
-        
+
         .button-container button {
-            width: auto; /* Adjust as per your design needs */
+            width: auto; /* Adjust button width to match addItemForm */
         }
-        
 
         button {
             width: 100%;
@@ -54,33 +78,6 @@
 
         button:hover {
             background-color: #1ba8b3;
-        }
-
-        input[type="text"], input[type="number"] {
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: calc(100% - 22px);
-            box-sizing: border-box;
-        }
-
-        #inventoryList {
-            width: 100%;
-            max-width: 400px;
-        }
-
-        #itemList {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        #itemList li {
-            background: white;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 4px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         }
 
         #logoutButton {
@@ -130,22 +127,46 @@
     </style>
 </head>
 <body>
-    <h1>Inventory Management</h1>
+    <h1>Remove Item</h1>
     <button id="logoutButton" onclick="window.location.href='/logout'">Logout</button>
 
     <form id="removeItemForm">
-        <label for="removeItemName">Item Name</label>
-        <input type="text" id="removeItemName" required>
-        <label for="scanQR"> Scan QR</label>
-        <label for="itemQuantity">Quantity</label>
-        <input type="number" id="itemQuantity" value=1 min="1" required>
-        <button type="submit">Remove Item</button>
+        <div class="form-field">
+            <label for="removeItemName">Item Name</label>
+            <input type="text" id="removeItemName" required>
+        </div>
+
+        <div class="form-field">
+            <label for="itemBarcode">Enter Barcode</label>
+            <input type="text" id="itemBarcode" placeholder="Enter Barcode" required>
+        </div>
+
+        <div class="form-field">
+            <label for="itemQuantity">Quantity</label>
+            <input type="number" id="itemQuantity" value=1 min="1" required>
+        </div>
+
+        <div class="form-field">
+            <label for="locationSelect">Select Location</label>
+            <select id="locationSelect">
+                <option value="trash">Trash</option>
+                <option value="cars">Cars</option>
+                <option value="personalVehicles">Personal Vehicles</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+<!-- 
+        <div class="form-field">
+            <label for="managerPIN">Manager PIN</label>
+            <input type="password" id="managerPIN" required>
+        </div> -->
+
+        <div class="button-container">
+            <button type="submit">Remove Item</button>
+        </div>
     </form>
 
-    <div id="inventoryList">
-        <h2>Inventory List</h2>
-        <ul id="itemList"></ul>
-    </div>
+    <iframe src="inventoryList.html" style="width:100%; height: auto; border:none;"></iframe>
 
     <!-- Modal -->
     <div id="customModal" class="modal">

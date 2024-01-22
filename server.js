@@ -8,10 +8,25 @@ const session = require('express-session'); // Import express-session
 
 const app = express(); // Creating an instance of Express
 const port = 3000; // Setting the port number for the server
+const mysql = require('mysql');
+
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'sarah123',
+    database: 'nexgen_inventory'
+});
+
+db.connect((err) => {
+    if (err) {
+        throw err;
+    }
+    console.log('Connected to MySQL Database');
+});
 
 // Set up session middleware
 app.use(session({
-    secret: 'your_secret_key', // Replace with a real secret in production
+    secret: 'secret_key', // Replace with a real secret in production
     resave: false,
     saveUninitialized: true,
 }));
@@ -20,50 +35,78 @@ app.use(session({
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Helper function to read and write Excel files
-function readWriteExcel(action) {
-    const workbook = XLSX.readFile('inventory.xlsx'); // Reads the Excel file
-    const sheetName = workbook.SheetNames[0]; // Gets the first sheet name
-    const worksheet = workbook.Sheets[sheetName]; // Gets the worksheet
-    let data = XLSX.utils.sheet_to_json(worksheet); // Converts the worksheet data to JSON
 
-    action(data); // Executes the action function passed as an argument on the data
-
-    // Writing back to Excel
-    const newWorksheet = XLSX.utils.json_to_sheet(data); // Converts JSON data back to worksheet format
-    workbook.Sheets[sheetName] = newWorksheet; // Updates the workbook with the new worksheet
-    XLSX.writeFile(workbook, 'inventory.xlsx'); // Writes the updated workbook back to the Excel file
-}
-
-// Helper function to read users from Excel
-function getUsers() {
-    const workbook = XLSX.readFile('inventory.xlsx');
-    const sheetName = workbook.SheetNames.find(name => name === "Users"); // Find the 'Users' sheet
-    if (!sheetName) return []; // If 'users' sheet doesn't exist, return empty array
-    const worksheet = workbook.Sheets[sheetName];
-    return XLSX.utils.sheet_to_json(worksheet); // Convert sheet to JSON and return
-}
-
-// Route for handling login
 app.post('/login', (req, res) => {
     const { name, pin } = req.body; // Extract name and pin from request body
-    const users = getUsers(); // Get the list of users
+    
+    // Query the database to find the user
+    db.query('SELECT * FROM users WHERE name = ? AND pin = ?', [name, pin], (err, result) => {
+        if (err) {
+            res.status(500).json({ success: false, message: 'Error checking credentials' });
+            throw err;
+        }
 
-    // Find the user with matching name and pin
-    // Convert both values to strings and trim them before comparison
-    // Also, use a case-insensitive comparison for the name
-    const user = users.find(u => 
-        u.name.toLowerCase().trim() === name.toLowerCase().trim() && 
-        u.pin.toString().trim() === pin.trim()
-    );
-
-    if (user) {
-        req.session.loggedIn = true; // Set a flag in the session
-        res.json({ success: true, message: 'Login successful' });
-    } else {
-        res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
+        if (result.length > 0) {
+            req.session.loggedIn = true; // Set a flag in the session
+            res.json({ success: true, message: 'Login successful' });
+        } else {
+            res.status(401).json({ success: false, message: 'Invalid credentials' });
+        }
+    });
 });
+
+app.post('/addItem', (req, res) => {
+    const { barcode, name, quantity } = req.body;
+
+    // First, check if an item with this barcode already exists
+    db.query('SELECT quantity FROM inventory WHERE barcode = ?', [barcode], (err, result) => {
+        if (err) {
+            res.status(500).json({ success: false, message: 'Error accessing the database' });
+            throw err;
+        }
+
+        if (result.length > 0) {
+            // Item exists, so update its quantity
+            const newQuantity = result[0].quantity + quantity;
+            db.query('UPDATE inventory SET quantity = ? WHERE barcode = ?', [newQuantity, barcode], (err, result) => {
+                if (err) {
+                    res.status(500).json({ success: false, message: 'Error updating item' });
+                    throw err;
+                }
+                res.json({ success: true, message: 'Item quantity updated' });
+            });
+        } else {
+            // Item does not exist, so add a new item
+            db.query('INSERT INTO inventory (name, quantity, barcode) VALUES (?, ?, ?)', [name, quantity, barcode], (err, result) => {
+                if (err) {
+                    res.status(500).json({ success: false, message: 'Error adding new item' });
+                    throw err;
+                }
+                res.json({ success: true, message: 'New item added' });
+            });
+        }
+    });
+});
+
+
+app.get('/lookupItem', (req, res) => {
+    const barcode = req.query.barcode;
+
+    db.query('SELECT name FROM inventory WHERE barcode = ?', [barcode], (err, result) => {
+        if (err) {
+            res.status(500).json({ success: false, message: 'Error querying the database' });
+            throw err;
+        }
+
+        if (result.length > 0) {
+            res.json({ success: true, name: result[0].name });
+        } else {
+            res.json({ success: false, message: 'No item found with this barcode' });
+        }
+    });
+});
+
+
 
 
 // Protect the main route
@@ -100,39 +143,17 @@ app.get('/scanQR', (req, res) => {
     res.sendFile(__dirname + '/public/scanQR.html');
 });
 
-// Route to get inventory items
-app.get('/getInventory', (req, res) => {
-    const workbook = XLSX.readFile('inventory.xlsx'); // Reads the Excel file
-    const sheetName = workbook.SheetNames[0]; // Gets the first sheet name
-    const worksheet = workbook.Sheets[sheetName]; // Gets the worksheet
-    const data = XLSX.utils.sheet_to_json(worksheet); // Converts the worksheet data to JSON
-    res.json(data); // Sends the JSON data as a response
-});
 
 // Route to add an item
 app.post('/addItem', (req, res) => {
     const addItem = req.body; // Gets the new item data from the request body
-    readWriteExcel(data => {
-        const existingItem = data.find(item => item.name === addItem.name); // Looks for an existing item with the same name
-        if (existingItem) {
-            existingItem.quantity += parseInt(addItem.quantity); // If found, increases its quantity
-        } else {
-            data.push({ name: addItem.name, quantity: parseInt(addItem.quantity) }); // If not found, adds the new item
-        }
-    });
-    res.json({ message: 'Item added' }); // Sends a response indicating the item was added
+    // fill in
 });
 
 // Route to remove an item
 app.post('/removeItem', (req, res) => {
     const removeItem = req.body; // Gets the item to be removed from the request body
-    readWriteExcel(data => {
-        const index = data.findIndex(item => item.name === removeItem.name); // Finds the index of the item to be removed
-        if (index !== -1) {
-            data.splice(index, 1); // If the item exists, removes it from the data
-        }
-    });
-    res.json({ message: 'Item removed' }); // Sends a response indicating the item was removed
+    // fill in
 });
 
 // Logout route

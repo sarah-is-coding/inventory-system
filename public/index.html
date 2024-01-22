@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Inventory Management</title>
+    <title>Dashboard</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -40,7 +40,7 @@
         }
 
         .grid-button {
-            padding: 10px 20px;
+            padding: 30px 60px;
             text-align: center;
         }
 
@@ -72,11 +72,15 @@
         #inventoryList {
             width: 100%;
             max-width: 400px;
+            text-align: center;
         }
 
         #itemList {
             list-style-type: none;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         #itemList li {
@@ -134,7 +138,7 @@
     </style>
 </head>
 <body>
-    <h1>Inventory Management</h1>
+    <h1>Dashboard</h1>
     <button id="logoutButton" onclick="window.location.href='/logout'">Logout</button>
 
     <div class="grid-container">
@@ -144,10 +148,7 @@
         <button type="button" class="grid-button" onclick="window.location.href='/printQR'">Print QR Code</button>
     </div>
 
-    <div id="inventoryList">
-        <h2>Inventory List</h2>
-        <ul id="itemList"></ul>
-    </div>
+    <iframe src="inventoryList.html" style="width:100%; height: auto; border:none;"></iframe>
 
     <!-- Modal -->
     <div id="customModal" class="modal">

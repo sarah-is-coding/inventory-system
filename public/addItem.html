@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Inventory Management</title>
+    <title>Add Item</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -48,6 +48,27 @@
 
         button:hover {
             background-color: #1ba8b3;
+        }
+
+        
+        .barcode-lookup-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .barcode-lookup-container input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex-grow: 1; /* Allows input to take available space */
+        }
+
+        .barcode-lookup-container .separator {
+            width: 1px;
+            background-color: #ccc;
+            height: 30px;
+            margin: 0 15px; /* Adjust spacing around the separator */
         }
 
         .form-field {
@@ -136,7 +157,7 @@
     </style>
 </head>
 <body>
-    <h1>Inventory Management</h1>
+    <h1>Add Item</h1>
     <button id="logoutButton" onclick="window.location.href='/logout'">Logout</button>
 
     <form id="addItemForm">
@@ -144,6 +165,18 @@
             <label for="itemName">Item Name</label>
             <input type="text" id="itemName" required>
         </div>
+
+        <div class="form-field">
+            <label for="itemBarcode">Enter Barcode or Lookup item</label>
+            <div class="barcode-lookup-container">
+                <input type="text" id="itemBarcode" placeholder="Enter Barcode">
+                <div class="separator"></div>
+                <button type="button" id="lookupButton">Lookup</button>
+                <div class="separator"></div>
+                <button type="submit" id="newItem">New Item</button>
+            </div>
+        </div>
+
 
         <div class="form-field">
             <label for="itemQuantity">Quantity</label>
@@ -167,10 +200,7 @@
         If they do not have a barcode, assume the item is completely new and they must manually enter everything.
  -->
 
-    <div id="inventoryList">
-        <h2>Inventory List</h2>
-        <ul id="itemList"></ul>
-    </div>
+    <iframe src="inventoryList.html" style="width:100%; height: auto; border:none;"></iframe>
 
     <!-- Modal -->
     <div id="customModal" class="modal">

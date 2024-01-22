@@ -1,25 +1,50 @@
-// This line attaches an event listener to the form with the ID 'newItemForm'.
-// When the form is submitted, the specified function is called.
-document.getElementById('newItemForm').addEventListener('submit', function(e) {
-    e.preventDefault(); // Prevents the default form submission action.
-
-    // Retrieves the values entered into the input fields with IDs 'itemName' and 'itemQuantity'.
-    const itemName = document.getElementById('itemName').value;
-    const itemQuantity = document.getElementById('itemQuantity').value;
-
-    // Makes an HTTP POST request to the '/newItem' route on the server.
-    fetch('/newItem', {
-        method: 'POST', // Specifies the method as POST.
-        headers: {
-            'Content-Type': 'application/json', // Sets the content type of the request to JSON.
-        },
-        body: JSON.stringify({ name: itemName, quantity: itemQuantity }), // Sends the item name and quantity as JSON in the request body.
-    })
-    .then(response => response.json()) // Parses the JSON response from the server.
+document.getElementById('itemBarcode').addEventListener('change', function(e) {
+    const barcode = e.target.value;
+    fetch(`/lookupItem?barcode=${barcode}`)
+    .then(response => response.json())
     .then(data => {
-        loadInventory(); // Calls the function to reload and display the updated inventory.
+        if(data.name) {
+            document.getElementById('itemName').value = data.name;
+        }
     });
 });
+
+document.getElementById('addItemForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const itemName = document.getElementById('itemName').value;
+    const itemBarcode = document.getElementById('itemBarcode').value;
+    const itemQuantity = parseInt(document.getElementById('itemQuantity').value);
+
+    fetch('/addItem', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ barcode: itemBarcode, name: itemName, quantity: itemQuantity }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        openModal(`Item added successfully! Location: ${data.location}`);
+        loadInventory();
+    });
+});
+
+document.getElementById('itemBarcode').addEventListener('change', function(e) {
+    const barcode = e.target.value;
+    
+    fetch(`/lookupItem?barcode=${barcode}`)
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            document.getElementById('itemName').value = data.name;
+        } else {
+            // Handle the case where no item is found or clear the field
+            document.getElementById('itemName').value = '';
+        }
+    });
+});
+
 
 // Similar to above, this attaches an event listener to the form for removing items.
 document.getElementById('removeItemForm').addEventListener('submit', function(e) {
@@ -58,9 +83,11 @@ function loadInventory() {
     });
 }
 
+
+
 loadInventory(); // Calls the loadInventory function when the script is first executed.
 
-document.getElementById("newItemForm").onsubmit = function() {
+document.getElementById("addItemForm").onsubmit = function() {
     openModal('Item added successfully!');
     return false;
 };
@@ -87,4 +114,6 @@ window.onclick = function(event) {
         modal.style.display = "none";
     }
 }
+
+
 
